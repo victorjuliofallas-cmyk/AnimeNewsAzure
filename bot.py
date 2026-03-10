@@ -1,8 +1,9 @@
 import requests
 import json
+import time
 
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 }
 
 def obtener_sinopsis_espanol(titulo_anime):
@@ -29,11 +30,12 @@ def actualizar_estrenos():
             })
         with open('estrenos.json', 'w', encoding='utf-8') as f:
             json.dump(lista, f, ensure_ascii=False, indent=4)
-    except Exception as e: print(f"Error: {e}")
+    except Exception as e: print(f"Error estrenos: {e}")
 
 def actualizar_trailers():
     url = "https://api.jikan.moe/v4/seasons/upcoming"
     try:
+        time.sleep(2) # Pausa para no bloquear la red
         response = requests.get(url, headers=headers, timeout=10)
         datos = response.json()
         lista = []
@@ -41,12 +43,12 @@ def actualizar_trailers():
             t_info = anime.get('trailer')
             if t_info and isinstance(t_info, dict):
                 yt_id = t_info.get('youtube_id')
-                if yt_id:  # <--- ESTO ES LO QUE FALTABA EN TU LÍNEA 47
+                if yt_id:
                     lista.append({"titulo": anime.get('title', 'Anime'), "youtube_id": yt_id})
             if len(lista) >= 3: break
         with open('trailers.json', 'w', encoding='utf-8') as f:
             json.dump(lista, f, ensure_ascii=False, indent=4)
-    except Exception as e: print(f"Error: {e}")
+    except Exception as e: print(f"Error trailers: {e}")
 
 if __name__ == "__main__":
     actualizar_estrenos()
