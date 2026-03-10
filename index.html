@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime News CR | Tu Fuente Otaku</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <div class="logo">
+        <h1>Anime News</h1>
+        <p>Noticias al instante desde Pérez Zeledón</p>
+    </div>
+    <nav>
+        <a href="#ultimas">Últimas Noticias</a>
+        <a href="#trailers">Nuevos Trailers</a>
+        <a href="#estrenos">Estrenos</a>
+    </nav>
+</header>
+
+<main>
+    <section id="ultimas">
+        <h2 class="titulo-seccion">Últimas Noticias</h2>
+        <div id="noticias-contenedor" class="grid">
+            <div class="cargando">Cargando las mejores noticias...</div>
+        </div>
+    </section>
+
+    <section id="trailers" style="margin-top: 50px;">
+        <h2 class="titulo-seccion">Nuevos Trailers</h2>
+        <div class="grid">
+            <div class="tarjeta" style="padding: 30px; text-align: center; border: 2px dashed #ff6600; background: #222;">
+                <h3>🤖 Espacio reservado para tu Bot</h3>
+                <p style="margin-top: 10px;">Aquí aparecerán los trailers que tu bot de Python encuentre próximamente.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="estrenos" style="margin-top: 50px;">
+        <h2 class="titulo-seccion">Estrenos de la Temporada</h2>
+        <div id="estrenos-contenedor" class="grid">
+            <div class="cargando">Cargando estrenos desde la base de datos...</div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2026 Anime News CR - Proyecto de Estudio de Diseño Web</p>
+</footer>
+
+<script>
+    // --- 1. FUNCIÓN PARA LAS NOTICIAS (ARRIBA) ---
+    // Mejoramos el "cazador de imágenes" para evitar huecos en blanco
+    const fuentesAnime = [
+        'https://somoskudasai.com/feed/',
+        'https://ramenparados.com/feed/'
+    ];
+
+    async function cargarNoticias() {
+        const contenedor = document.getElementById('noticias-contenedor');
+        let noticiasCargadas = false;
+
+        for (let url of fuentesAnime) {
+            if (noticiasCargadas) break;
+            const apiRss = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+
+            try {
+                const response = await fetch(apiRss);
+                const data = await response.json();
+
+                if (data.status === 'ok' && data.items.length > 0) {
+                    contenedor.innerHTML = '';
+
+                    data.items.slice(0, 6).forEach(noticia => {
+                        const article = document.createElement('article');
+                        article.className = 'tarjeta';
+
+                        // 1. Limpiamos y cortamos el texto
+                        let resumen = noticia.description.replace(/<[^>]*>?/gm, '').substring(0, 110) + '...';
+
+                        // 2. Intentamos buscar una imagen real en el contenido
+                        let imagen = noticia.thumbnail; // Imagen por defecto de la API
+                        let textoHTML = noticia.content || noticia.description || "";
+
+                        if (!imagen || imagen.trim() === "") {
+                            // Buscamos la primera etiqueta <img> en el texto HTML
+                            const buscarImg = textoHTML.match(/<img[^>]+src=(["'])(.*?)\1/i);
+                            if (buscarImg && buscarImg[2]) {
+                                imagen = buscarImg[2]; // Usamos la imagen encontrada
+                            }
+                        }
+
+                        // 3. LA SOLUCIÓN MAESTRA: Si no hay imagen, usamos una de respaldo bonita
+                        if (!imagen || imagen.trim() === "") {
+                            imagen = 'https://via.placeholder.com/600x400/2a2a2a/ff6600?text=Anime+News';
+                        }
+
+                        article.innerHTML = `
+                            <img src="${imagen}" alt="Noticia" onerror="this.src='https://via.placeholder.com/600x400/2a2a2a/ff6600?text=Anime+News'">
+                            <div class="contenido">
+                                <h3>${noticia.title}</h3>
+                                <p>${resumen}</p>
+                                <a href="${noticia.link}" target="_blank" class="btn">Leer completa</a>
+                            </div>
+                        `;
+                        contenedor.appendChild(article);
+                    });
+                    noticiasCargadas = true;
+                }
+            } catch (error) {
+                console.log('Buscando en otra fuente...');
+            }
+        }
+        if (!noticiasCargadas) contenedor.innerHTML = '<p>No se pudieron cargar las noticias. Intenta recargar la página.</p>';
+    }
+
+    // --- 2. FUNCIÓN PARA LOS ESTRENOS (ABAJO EN ESPAÑOL) ---
+    async function cargarEstrenos() {
+        try {
+            // Va y busca el archivo estrenos.json que creó tu bot
+            const response = await fetch('estrenos.json');
+            const estrenos = await response.json();
+
+            const contenedor = document.getElementById('estrenos-contenedor');
+            contenedor.innerHTML = ''; // Borra el texto de "Cargando..."
+
+            estrenos.forEach(anime => {
+                contenedor.innerHTML += `
+                    <div class="tarjeta">
+                        <img src="${anime.imagen}" alt="${anime.titulo}">
+                        <div class="contenido">
+                            <h3 style="color: #fff;">${anime.titulo}</h3>
+                            <p>${anime.sinopsis}</p> <a href="${anime.link}" target="_blank" class="btn">Ver en MyAnimeList</a>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (e) {
+            console.log("No se pudo leer estrenos.json. Asegúrate de haber corrido el bot.py");
+        }
+    }
+
+    // Ejecutamos ambas funciones al cargar la página
+    cargarNoticias();
+    cargarEstrenos();
+</script>
+</body>
+</html>

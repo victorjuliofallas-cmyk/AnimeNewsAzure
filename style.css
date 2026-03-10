@@ -1,0 +1,30 @@
+/* Configuración básica */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a1a1a; color: white; line-height: 1.6; }
+
+/* Encabezado Estilo Pro */
+header { background: linear-gradient(90deg, #ff6600, #ff9900); padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.logo h1 { font-size: 2.5rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px;}
+.logo p { font-size: 0.9rem; opacity: 0.9; font-weight: bold; }
+nav { margin-top: 15px; }
+nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: bold; transition: 0.3s; }
+nav a:hover { color: #1a1a1a; }
+
+/* Contenedor de noticias */
+main { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+.titulo-seccion { border-left: 5px solid #ff6600; padding-left: 10px; margin-bottom: 25px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+
+/* Tarjetas de noticias */
+.tarjeta { background: #2a2a2a; border-radius: 10px; overflow: hidden; transition: transform 0.3s; border: 1px solid #333; display: flex; flex-direction: column; }
+.tarjeta:hover { transform: translateY(-5px); border-color: #ff6600; box-shadow: 0 5px 15px rgba(255, 102, 0, 0.2); }
+.tarjeta img { width: 100%; height: 200px; object-fit: cover; border-bottom: 3px solid #ff6600; }
+.contenido { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+.contenido h3 { font-size: 1.1rem; margin-bottom: 10px; color: #ff9900; }
+.contenido p { font-size: 0.9rem; color: #ccc; margin-bottom: 15px; flex-grow: 1; }
+
+/* Botones */
+.btn { display: inline-block; background: #ff6600; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-size: 0.9rem; font-weight: bold; text-align: center; transition: 0.3s;}
+.btn:hover { background: #e65c00; }
+
+footer { text-align: center; padding: 40px; color: #666; font-size: 0.8rem; margin-top: 40px; border-top: 1px solid #333;}
