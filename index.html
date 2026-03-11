@@ -39,13 +39,13 @@
     </main>
 
     <footer>
-        <div class="container footer-text">
+        <div class="container footer-text" style="text-align: center; padding: 20px; color: #666;">
             <p>© 2026 AnimeNewsAzure - Victor Julio Fallas Arroyo</p>
         </div>
     </footer>
 
     <script>
-        // 1. CARGAR NOTICIAS
+        // CARGAR NOTICIAS (Ahora con links reales)
         fetch('noticias.json')
             .then(res => res.json())
             .then(data => {
@@ -62,9 +62,9 @@
                         </div>
                     `;
                 });
-            }).catch(() => document.getElementById('contenedor-noticias').innerHTML = '<p>No hay noticias por el momento.</p>');
+            }).catch(() => document.getElementById('contenedor-noticias').innerHTML = '<p>Error cargando noticias.</p>');
 
-        // 2. CARGAR ESTRENOS
+        // CARGAR ESTRENOS
         fetch('estrenos.json')
             .then(res => res.json())
             .then(data => {
@@ -84,27 +84,20 @@
                 });
             });
 
-        // 3. CARGAR TRAILERS (¡Con el link de YouTube 100% arreglado!)
+        // CARGAR TRAILERS (Usando el link directo y seguro del bot)
         fetch('trailers.json')
             .then(res => res.json())
             .then(data => {
                 const contenedor = document.getElementById('contenedor-trailers');
                 contenedor.innerHTML = '';
                 data.forEach(trailer => {
-                    let videoId = "";
-                    if (trailer.video.includes('v=')) {
-                        videoId = trailer.video.split('v=')[1].split('&')[0];
-                    } else if (trailer.video.includes('youtu.be/')) {
-                        videoId = trailer.video.split('youtu.be/')[1].split('?')[0];
-                    }
+                    // Si el bot no trajo video, no intentamos mostrar un reproductor roto
+                    if (!trailer.video) return; 
                     
-                    // ESTE ES EL LINK OFICIAL CORRECTO
-                    let iframeSrc = videoId ? `https://www.youtube.com/embed/${videoId}` : trailer.video;
-
                     contenedor.innerHTML += `
                         <div class="card">
                             <div class="video-container">
-                                <iframe src="${iframeSrc}" frameborder="0" allowfullscreen></iframe>
+                                <iframe src="${trailer.video}" frameborder="0" allowfullscreen></iframe>
                             </div>
                             <div class="card-content">
                                 <h3>${trailer.titulo}</h3>
