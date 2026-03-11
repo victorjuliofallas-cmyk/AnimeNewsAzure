@@ -3,150 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime News CR | Tu Fuente Otaku</title>
+    <title>AnimeNewsAzure - Estrenos de Anime</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <header>
-        <div class="logo">
-            <h1>Anime News</h1>
-            <p>Noticias al instante</p>
+        <div class="container">
+            <h1>AnimeNews<span>Azure</span></h1>
+            <p>Tu portal de noticias de anime en tiempo real</p>
         </div>
-        <nav>
-            <a href="#ultimas">Últimas Noticias</a>
-            <a href="#trailers">Nuevos Trailers</a>
-            <a href="#estrenos">Estrenos</a>
-        </nav>
     </header>
 
-    <main>
-        <section id="ultimas">
-            <h2 class="titulo-seccion">Últimas Noticias</h2>
-            <div id="noticias-contenedor" class="grid">
-                <div class="cargando">Cargando las mejores noticias...</div>
+    <main class="container">
+        <section id="estrenos-seccion">
+            <h2>Estrenos de Temporada</h2>
+            <div id="contenedor-estrenos" class="grid-container">
+                <p>Cargando estrenos...</p>
             </div>
         </section>
 
-        <section id="trailers" style="margin-top: 50px;">
-            <h2 class="titulo-seccion">Nuevos Trailers</h2>
-            <div id="trailers-contenedor" class="grid">
-                <div class="cargando">Cargando trailers desde GitHub...</div>
-            </div>
-        </section>
+        <hr>
 
-        <section id="estrenos" style="margin-top: 50px;">
-            <h2 class="titulo-seccion">Estrenos de la Temporada</h2>
-            <div id="estrenos-contenedor" class="grid">
-                <div class="cargando">Cargando estrenos en español...</div>
+        <section id="trailers-seccion">
+            <h2>Nuevos Trailers</h2>
+            <div id="contenedor-trailers" class="grid-container">
+                <p>Buscando trailers nuevos...</p>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2026 Anime News CR - Proyecto de Estudio de Diseño Web</p>
+        <p>&copy; 2024 AnimeNewsAzure - Proyecto de Victor Julio Fallas</p>
     </footer>
 
     <script>
-        // 1. CARGAR NOTICIAS (Con respaldo si falla la imagen)
-        const fuentesAnime = ['https://somoskudasai.com/feed/', 'https://ramenparados.com/feed/'];
+        // Función para cargar Estrenos
+        fetch('estrenos.json')
+            .then(response => response.json())
+            .then(data => {
+                const contenedor = document.getElementById('contenedor-estrenos');
+                contenedor.innerHTML = ''; // Limpiamos el texto de carga
 
-        async function cargarNoticias() {
-            const contenedor = document.getElementById('noticias-contenedor');
-            let noticiasCargadas = false;
+                data.forEach(anime => {
+                    const card = document.createElement('div');
+                    card.className = 'anime-card';
+                    
+                    // IMPORTANTE: Aquí agregamos el referrerpolicy="no-referrer"
+                    card.innerHTML = `
+                        <img src="${anime.imagen}" alt="${anime.titulo}" referrerpolicy="no-referrer">
+                        <h3>${anime.titulo}</h3>
+                        <p>${anime.sinopsis}</p>
+                        <a href="${anime.link}" target="_blank" class="btn">Ver más</a>
+                    `;
+                    contenedor.appendChild(card);
+                });
+            })
+            .catch(err => console.error("Error cargando estrenos:", err));
 
-            for (let url of fuentesAnime) {
-                if (noticiasCargadas) break;
-                const apiRss = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
-
-                try {
-                    const response = await fetch(apiRss);
-                    const data = await response.json();
-
-                    if (data.status === 'ok' && data.items.length > 0) {
-                        contenedor.innerHTML = ''; 
-                        data.items.slice(0, 6).forEach(noticia => {
-                            let resumen = noticia.description.replace(/<[^>]*>?/gm, '').substring(0, 110) + '...';
-                            let imagen = noticia.thumbnail;
-                            let textoHTML = noticia.content || noticia.description || "";
-
-                            if (!imagen || imagen.trim() === "") {
-                                const buscarImg = textoHTML.match(/<img[^>]+src=(["'])(.*?)\1/i);
-                                if (buscarImg && buscarImg[2]) imagen = buscarImg[2];
-                            }
-
-                            if (!imagen || imagen.trim() === "") {
-                                imagen = 'https://via.placeholder.com/600x400/2a2a2a/ff6600?text=Anime+News';
-                            }
-
-                            contenedor.innerHTML += `
-                                <article class="tarjeta">
-                                    <img src="${imagen}" alt="Noticia" onerror="this.src='https://via.placeholder.com/600x400/2a2a2a/ff6600?text=Anime+News'">
-                                    <div class="contenido">
-                                        <h3>${noticia.title}</h3>
-                                        <p>${resumen}</p>
-                                        <a href="${noticia.link}" target="_blank" class="btn">Leer completa</a>
-                                    </div>
-                                </article>
-                            `;
-                        });
-                        noticiasCargadas = true;
-                    }
-                } catch (error) { console.log('Buscando otra fuente...'); }
-            }
-            if (!noticiasCargadas) contenedor.innerHTML = '<p>Error al cargar noticias.</p>';
-        }
-
-        // 2. CARGAR TRAILERS
-        async function cargarTrailers() {
-            try {
-                const response = await fetch('trailers.json');
-                const trailers = await response.json();
-                const contenedor = document.getElementById('trailers-contenedor');
+        // Función para cargar Trailers
+        fetch('trailers.json')
+            .then(response => response.json())
+            .then(data => {
+                const contenedor = document.getElementById('contenedor-trailers');
                 contenedor.innerHTML = '';
 
-                trailers.forEach(trailer => {
-                    contenedor.innerHTML += `
-                        <div class="tarjeta">
-                            <iframe width="100%" height="200" src="https://www.youtube.com/embed/${trailer.youtube_id}" frameborder="0" allowfullscreen></iframe>
-                            <div class="contenido">
-                                <h3 style="color: #fff;">${trailer.titulo}</h3>
-                            </div>
+                if(data.length === 0) {
+                    contenedor.innerHTML = '<p>No hay trailers nuevos disponibles por ahora.</p>';
+                    return;
+                }
+
+                data.forEach(trailer => {
+                    const card = document.createElement('div');
+                    card.className = 'trailer-card';
+                    
+                    // Convertimos el link normal de YT en uno que se pueda ver (embed)
+                    const videoId = trailer.video.split('v=')[1]?.split('&')[0] || "";
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+
+                    card.innerHTML = `
+                        <div class="video-responsive">
+                            <iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
                         </div>
+                        <h3>${trailer.titulo}</h3>
                     `;
+                    contenedor.appendChild(card);
                 });
-            } catch (e) {
-                document.getElementById('trailers-contenedor').innerHTML = '<p>Esperando a que el bot suba los trailers...</p>';
-            }
-        }
-
-        // 3. CARGAR ESTRENOS
-        async function cargarEstrenos() {
-            try {
-                const response = await fetch('estrenos.json');
-                const estrenos = await response.json();
-                const contenedor = document.getElementById('estrenos-contenedor');
-                contenedor.innerHTML = '';
-
-                estrenos.forEach(anime => {
-                    contenedor.innerHTML += `
-                        <div class="tarjeta">
-                            <img src="${anime.imagen}" alt="${anime.titulo}">
-                            <div class="contenido">
-                                <h3 style="color: #fff;">${anime.titulo}</h3>
-                                <p>${anime.sinopsis}</p>
-                                <a href="${anime.link}" target="_blank" class="btn">Ver</a>
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch (e) {
-                document.getElementById('estrenos-contenedor').innerHTML = '<p>Esperando datos en español...</p>';
-            }
-        }
-
-        cargarNoticias();
-        cargarTrailers();
-        cargarEstrenos();
+            })
+            .catch(err => console.error("Error cargando trailers:", err));
     </script>
 </body>
 </html>
