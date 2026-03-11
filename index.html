@@ -18,18 +18,29 @@
     <main class="container">
         <section id="noticias-seccion">
             <h2 class="section-title">📰 Últimas Noticias</h2>
-            <div id="contenedor-noticias" class="grid-container">
-                <p>Cargando noticias...</p>
+            <div class="grid-container">
+                <div class="card">
+                    <img src="https://cdn.myanimelist.net/images/anime/1015/138006l.jpg" alt="Noticia JM" referrerpolicy="no-referrer">
+                    <div class="card-content">
+                        <h3>El manga JM, del creador de Hinamatsuri, tendrá adaptación al anime</h3>
+                        <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Las historias de intercambio de cuerpos siempre generan situaciones hilarantes, pero el caos se eleva al máximo con esta nueva serie...</p>
+                        <a href="https://myanimelist.net/news" target="_blank" class="btn">Leer completa</a>
+                    </div>
+                </div>
             </div>
         </section>
+        
         <hr>
+
         <section id="estrenos-seccion">
             <h2 class="section-title">🔥 Estrenos de la Temporada</h2>
             <div id="contenedor-estrenos" class="grid-container">
                 <p>Cargando animes...</p>
             </div>
         </section>
+        
         <hr>
+
         <section id="trailers-seccion">
             <h2 class="section-title">🎬 Nuevos Trailers</h2>
             <div id="contenedor-trailers" class="grid-container">
@@ -45,24 +56,18 @@
     </footer>
 
     <script>
-        // CARGAR NOTICIAS (Ahora con links reales)
-        fetch('noticias.json')
-            .then(res => res.json())
-            .then(data => {
-                const contenedor = document.getElementById('contenedor-noticias');
-                contenedor.innerHTML = '';
-                data.forEach(noticia => {
-                    contenedor.innerHTML += `
-                        <div class="card">
-                            <img src="${noticia.imagen}" alt="Noticia">
-                            <div class="card-content">
-                                <h3>${noticia.titulo}</h3>
-                                <a href="${noticia.link}" target="_blank" class="btn">Leer completa</a>
-                            </div>
-                        </div>
-                    `;
-                });
-            }).catch(() => document.getElementById('contenedor-noticias').innerHTML = '<p>Error cargando noticias.</p>');
+        // Función definitiva para arreglar cualquier link de YouTube
+        function obtenerLinkYoutube(url) {
+            if (!url) return "";
+            if (url.includes("embed")) return url; 
+            let videoId = "";
+            if (url.includes("v=")) {
+                videoId = url.split("v=")[1].split("&")[0];
+            } else if (url.includes("youtu.be/")) {
+                videoId = url.split("youtu.be/")[1].split("?")[0];
+            }
+            return videoId ? "https://www.youtube.com/embed/" + videoId : "";
+        }
 
         // CARGAR ESTRENOS
         fetch('estrenos.json')
@@ -73,31 +78,31 @@
                 data.forEach(anime => {
                     contenedor.innerHTML += `
                         <div class="card">
-                            <img src="${anime.imagen}" alt="${anime.titulo}">
+                            <img src="${anime.imagen}" alt="${anime.titulo}" referrerpolicy="no-referrer">
                             <div class="card-content">
                                 <h3>${anime.titulo}</h3>
                                 <p style="font-size: 0.9em; color: #ccc; margin-bottom: 15px;">${anime.sinopsis}</p>
-                                <a href="${anime.link}" target="_blank" class="btn">Ver más</a>
+                                <a href="${anime.link}" target="_blank" class="btn">Ver en MAL</a>
                             </div>
                         </div>
                     `;
                 });
-            });
+            }).catch(() => document.getElementById('contenedor-estrenos').innerHTML = '<p>No hay animes cargados.</p>');
 
-        // CARGAR TRAILERS (Usando el link directo y seguro del bot)
+        // CARGAR TRAILERS
         fetch('trailers.json')
             .then(res => res.json())
             .then(data => {
                 const contenedor = document.getElementById('contenedor-trailers');
                 contenedor.innerHTML = '';
                 data.forEach(trailer => {
-                    // Si el bot no trajo video, no intentamos mostrar un reproductor roto
-                    if (!trailer.video) return; 
+                    let linkCorrecto = obtenerLinkYoutube(trailer.video);
+                    if (!linkCorrecto) return; // Si no hay video válido, lo salta para no mostrar errores
                     
                     contenedor.innerHTML += `
                         <div class="card">
                             <div class="video-container">
-                                <iframe src="${trailer.video}" frameborder="0" allowfullscreen></iframe>
+                                <iframe src="${linkCorrecto}" frameborder="0" allowfullscreen></iframe>
                             </div>
                             <div class="card-content">
                                 <h3>${trailer.titulo}</h3>
@@ -105,7 +110,7 @@
                         </div>
                     `;
                 });
-            });
+            }).catch(() => document.getElementById('contenedor-trailers').innerHTML = '<p>No hay trailers cargados.</p>');
     </script>
 </body>
 </html>
