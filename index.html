@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnimeNewsAzure - Estrenos de Anime</title>
+    <title>AnimeNewsAzure - Estrenos</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
 
     <main class="container">
         <section id="estrenos-seccion">
-            <h2>Estrenos de Temporada</h2>
+            <h2>Estrenos de la Temporada</h2>
             <div id="contenedor-estrenos" class="grid-container">
                 <p>Cargando estrenos...</p>
             </div>
@@ -34,24 +34,24 @@
     </main>
 
     <footer>
-        <p>&copy; 2024 AnimeNewsAzure - Proyecto de Victor Julio Fallas</p>
+        <p>© 2024 AnimeNewsAzure - Proyecto de Victor Julio Fallas</p>
     </footer>
 
     <script>
-        // Función para cargar Estrenos
+        // Cargar Estrenos con el parche de imágenes
         fetch('estrenos.json')
             .then(response => response.json())
             .then(data => {
                 const contenedor = document.getElementById('contenedor-estrenos');
-                contenedor.innerHTML = ''; // Limpiamos el texto de carga
+                contenedor.innerHTML = ''; 
 
                 data.forEach(anime => {
                     const card = document.createElement('div');
                     card.className = 'anime-card';
                     
-                    // IMPORTANTE: Aquí agregamos el referrerpolicy="no-referrer"
+                    // AQUÍ ESTÁ EL TRUCO: referrerpolicy="no-referrer"
                     card.innerHTML = `
-                        <img src="${anime.imagen}" alt="${anime.titulo}" referrerpolicy="no-referrer">
+                        <img src="${anime.imagen}" alt="${anime.titulo}" referrerpolicy="no-referrer" style="width:100%; border-radius:8px;">
                         <h3>${anime.titulo}</h3>
                         <p>${anime.sinopsis}</p>
                         <a href="${anime.link}" target="_blank" class="btn">Ver más</a>
@@ -59,9 +59,9 @@
                     contenedor.appendChild(card);
                 });
             })
-            .catch(err => console.error("Error cargando estrenos:", err));
+            .catch(err => console.error("Error:", err));
 
-        // Función para cargar Trailers
+        // Cargar Trailers
         fetch('trailers.json')
             .then(response => response.json())
             .then(data => {
@@ -69,28 +69,23 @@
                 contenedor.innerHTML = '';
 
                 if(data.length === 0) {
-                    contenedor.innerHTML = '<p>No hay trailers nuevos disponibles por ahora.</p>';
+                    contenedor.innerHTML = '<p>No hay trailers nuevos por ahora.</p>';
                     return;
                 }
 
                 data.forEach(trailer => {
                     const card = document.createElement('div');
                     card.className = 'trailer-card';
-                    
-                    // Convertimos el link normal de YT en uno que se pueda ver (embed)
                     const videoId = trailer.video.split('v=')[1]?.split('&')[0] || "";
                     const embedUrl = `https://www.youtube.com/embed/${videoId}`;
 
                     card.innerHTML = `
-                        <div class="video-responsive">
-                            <iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
-                        </div>
+                        <iframe width="100%" height="200" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
                         <h3>${trailer.titulo}</h3>
                     `;
                     contenedor.appendChild(card);
                 });
-            })
-            .catch(err => console.error("Error cargando trailers:", err));
+            });
     </script>
 </body>
 </html>
