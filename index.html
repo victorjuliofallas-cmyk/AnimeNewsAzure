@@ -3,33 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <meta name="referrer" content="no-referrer">
-    
     <title>AnimeNewsAzure - El Portal de Victor</title>
     <link rel="stylesheet" href="style.css">
-    
-    <style>
-        /* Estilos base para asegurar que la cuadrícula se vea bien */
-        body { background-color: #121212; color: #ffffff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        .container { width: 90%; max-width: 1200px; margin: auto; }
-        header { background-color: #1f1f1f; padding: 20px 0; border-bottom: 3px solid #e65100; text-align: center;}
-        header h1 { margin: 0; color: #fff; }
-        header h1 span { color: #e65100; }
-        .section-title { border-left: 4px solid #e65100; padding-left: 10px; margin-top: 40px; margin-bottom: 20px; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding-bottom: 40px; }
-        .card { background: #1e1e1e; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
-        .card img { width: 100%; height: 300px; object-fit: cover; }
-        .card-content { padding: 15px; }
-        .card-content h3 { margin-top: 0; color: #e65100; font-size: 1.2em; }
-        .btn { display: inline-block; background: #e65100; color: #fff; padding: 10px 15px; text-decoration: none; border-radius: 4px; margin-top: 10px;}
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        hr { border: 1px solid #333; margin: 20px 0; }
-    </style>
 </head>
 <body>
-
     <header>
         <div class="container">
             <h1>AnimeNews<span>Azure</span></h1>
@@ -44,24 +22,20 @@
                 <div class="card">
                     <div class="card-content">
                         <h3>El manga JM, del creador de Hinamatsuri, tendrá adaptación al anime</h3>
-                        <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Las historias de intercambio de cuerpos siempre generan situaciones hilarantes, pero el caos se eleva al máximo...</p>
+                        <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Las historias de intercambio de cuerpos siempre generan situaciones hilarantes, pero el caos se eleva al máximo con esta nueva serie...</p>
                         <a href="#" class="btn">Leer completa</a>
                     </div>
                 </div>
             </div>
         </section>
-
         <hr>
-
         <section id="estrenos-seccion">
             <h2 class="section-title">🔥 Estrenos de la Temporada</h2>
             <div id="contenedor-estrenos" class="grid-container">
                 <p>Cargando animes...</p>
             </div>
         </section>
-
         <hr>
-
         <section id="trailers-seccion">
             <h2 class="section-title">🎬 Nuevos Trailers</h2>
             <div id="contenedor-trailers" class="grid-container">
@@ -71,13 +45,12 @@
     </main>
 
     <footer>
-        <div class="container" style="text-align: center; padding: 20px 0; color: #666;">
-            <p>© 2026 AnimeNewsAzure - Victor Julio Fallas Arroyo</p>
+        <div class="container footer-text">
+            <p>© 2026 AnimeNewsAzure - Victor Julio Fallas</p>
         </div>
     </footer>
 
     <script>
-        // LÓGICA PARA CARGAR ESTRENOS
         fetch('estrenos.json')
             .then(res => res.json())
             .then(data => {
@@ -95,33 +68,20 @@
                         </div>
                     `;
                 });
-            })
-            .catch(() => document.getElementById('contenedor-estrenos').innerHTML = '<p>Error cargando estrenos.</p>');
+            });
 
-        // LÓGICA PARA CARGAR TRAILERS (Con el link de YouTube reparado)
         fetch('trailers.json')
             .then(res => res.json())
             .then(data => {
                 const contenedor = document.getElementById('contenedor-trailers');
                 contenedor.innerHTML = '';
-                
-                if (data.length === 0) {
-                    contenedor.innerHTML = '<p>No hay trailers disponibles.</p>';
-                    return;
-                }
-
                 data.forEach(trailer => {
-                    // Limpieza del link de YouTube
                     let videoId = "";
-                    try {
-                        if (trailer.video.includes('v=')) {
-                            videoId = trailer.video.split('v=')[1].split('&')[0];
-                        } else if (trailer.video.includes('youtu.be/')) {
-                            videoId = trailer.video.split('youtu.be/')[1].split('?')[0];
-                        }
-                    } catch(e) {}
-
-                    // Link oficial para insertar videos
+                    if (trailer.video.includes('v=')) {
+                        videoId = trailer.video.split('v=')[1].split('&')[0];
+                    } else if (trailer.video.includes('youtu.be/')) {
+                        videoId = trailer.video.split('youtu.be/')[1].split('?')[0];
+                    }
                     let iframeSrc = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
 
                     contenedor.innerHTML += `
@@ -135,8 +95,7 @@
                         </div>
                     `;
                 });
-            })
-            .catch(() => document.getElementById('contenedor-trailers').innerHTML = '<p>Error cargando trailers.</p>');
+            });
     </script>
 </body>
 </html>
