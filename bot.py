@@ -20,8 +20,7 @@ def actualizar_estrenos():
         response = requests.get(url, headers=headers, timeout=10)
         datos = response.json()
         lista = []
-        
-        # ¡AQUÍ ESTÁ LA MAGIA! Cambié el [:4] por [:24] para que traiga 24 animes
+        # Trae hasta 24 animes
         for anime in datos.get('data', [])[:24]:
             titulo = anime.get('title', 'Sin título')
             lista.append({
@@ -33,27 +32,28 @@ def actualizar_estrenos():
         with open('estrenos.json', 'w', encoding='utf-8') as f:
             json.dump(lista, f, ensure_ascii=False, indent=4)
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error en estrenos: {e}")
 
 def actualizar_trailers():
     url = "https://api.jikan.moe/v4/seasons/upcoming"
     try:
-        time.sleep(2) 
+        time.sleep(2) # Pausa obligatoria para que tu router no colapse
         response = requests.get(url, headers=headers, timeout=10)
         datos = response.json()
         lista = []
         for anime in datos.get('data', []):
-            trailer_url = anime.get('trailer', {}).get('url')
-            if trailer_url and len(lista) < 4:
+            # EXTRAEMOS DIRECTAMENTE EL LINK DE EMBED PARA YOUTUBE
+            embed_url = anime.get('trailer', {}).get('embed_url')
+            if embed_url and len(lista) < 4:
                 lista.append({
                     "titulo": anime.get('title', 'Próximo estreno'),
-                    "video": trailer_url,
-                    "imagen": ""
+                    "video": embed_url,
+                    "imagen": anime.get('images', {}).get('jpg', {}).get('large_image_url', '')
                 })
         with open('trailers.json', 'w', encoding='utf-8') as f:
             json.dump(lista, f, ensure_ascii=False, indent=4)
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error en trailers: {e}")
 
 if __name__ == "__main__":
     actualizar_estrenos()
