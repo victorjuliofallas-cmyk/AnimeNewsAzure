@@ -3,85 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnimeNewsAzure - Estrenos</title>
+    <title>AnimeNewsAzure - El Portal de Victor</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Unos retoques rápidos para que se vea más lleno */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        .anime-card, .trailer-card {
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            border: 1px solid #333;
+        }
+        .anime-card:hover { transform: scale(1.03); }
+        .anime-card img { width: 100%; height: 350px; object-fit: cover; }
+        .card-content { padding: 15px; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    </style>
 </head>
 <body>
 
     <header>
         <div class="container">
             <h1>AnimeNews<span>Azure</span></h1>
-            <p>Tu portal de noticias de anime en tiempo real</p>
+            <p>Explorando los mejores estrenos y trailers de temporada</p>
         </div>
     </header>
 
     <main class="container">
         <section id="estrenos-seccion">
-            <h2>Estrenos de la Temporada</h2>
+            <h2 class="section-title">🔥 Estrenos de la Temporada</h2>
             <div id="contenedor-estrenos" class="grid-container">
-                <p>Cargando estrenos...</p>
+                <p>Invocando animes...</p>
             </div>
         </section>
 
-        <hr>
+        <hr style="border: 1px solid #333; margin: 40px 0;">
 
         <section id="trailers-seccion">
-            <h2>Nuevos Trailers</h2>
+            <h2 class="section-title">🎬 Últimos Trailers Oficiales</h2>
             <div id="contenedor-trailers" class="grid-container">
-                <p>Buscando trailers nuevos...</p>
+                <p>Buscando trailers en el servidor...</p>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>© 2024 AnimeNewsAzure - Proyecto de Victor Julio Fallas</p>
+        <p>© 2026 AnimeNewsAzure - Victor Julio Fallas Arroyo</p>
     </footer>
 
     <script>
-        // Cargar Estrenos con el parche de imágenes
+        // CARGAR TODOS LOS ESTRENOS
         fetch('estrenos.json')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 const contenedor = document.getElementById('contenedor-estrenos');
                 contenedor.innerHTML = ''; 
-
                 data.forEach(anime => {
                     const card = document.createElement('div');
                     card.className = 'anime-card';
-                    
-                    // AQUÍ ESTÁ EL TRUCO: referrerpolicy="no-referrer"
                     card.innerHTML = `
-                        <img src="${anime.imagen}" alt="${anime.titulo}" referrerpolicy="no-referrer" style="width:100%; border-radius:8px;">
-                        <h3>${anime.titulo}</h3>
-                        <p>${anime.sinopsis}</p>
-                        <a href="${anime.link}" target="_blank" class="btn">Ver más</a>
+                        <img src="${anime.imagen}" alt="${anime.titulo}" referrerpolicy="no-referrer">
+                        <div class="card-content">
+                            <h3>${anime.titulo}</h3>
+                            <p style="font-size: 0.9em; color: #ccc; margin-bottom: 15px;">${anime.sinopsis}</p>
+                            <a href="${anime.link}" target="_blank" class="btn">Detalles en MAL</a>
+                        </div>
                     `;
                     contenedor.appendChild(card);
                 });
-            })
-            .catch(err => console.error("Error:", err));
+            });
 
-        // Cargar Trailers
+        // CARGAR TODOS LOS TRAILERS
         fetch('trailers.json')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 const contenedor = document.getElementById('contenedor-trailers');
                 contenedor.innerHTML = '';
-
-                if(data.length === 0) {
-                    contenedor.innerHTML = '<p>No hay trailers nuevos por ahora.</p>';
+                
+                if (data.length === 0) {
+                    contenedor.innerHTML = '<p>No hay trailers en el archivo JSON actualmente.</p>';
                     return;
                 }
 
                 data.forEach(trailer => {
                     const card = document.createElement('div');
                     card.className = 'trailer-card';
-                    const videoId = trailer.video.split('v=')[1]?.split('&')[0] || "";
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                    
+                    // Lógica para limpiar el link de YouTube y que funcione el embed
+                    let videoId = "";
+                    if (trailer.video.includes('v=')) {
+                        videoId = trailer.video.split('v=')[1].split('&')[0];
+                    } else if (trailer.video.includes('be/')) {
+                        videoId = trailer.video.split('be/')[1];
+                    }
 
                     card.innerHTML = `
-                        <iframe width="100%" height="200" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
-                        <h3>${trailer.titulo}</h3>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <div class="card-content">
+                            <h3>${trailer.titulo}</h3>
+                        </div>
                     `;
                     contenedor.appendChild(card);
                 });
