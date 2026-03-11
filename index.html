@@ -18,14 +18,8 @@
     <main class="container">
         <section id="noticias-seccion">
             <h2 class="section-title">📰 Últimas Noticias</h2>
-            <div class="grid-container">
-                <div class="card">
-                    <div class="card-content">
-                        <h3>El manga JM, del creador de Hinamatsuri, tendrá adaptación al anime</h3>
-                        <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Las historias de intercambio de cuerpos siempre generan situaciones hilarantes, pero el caos se eleva al máximo con esta nueva serie...</p>
-                        <a href="#" class="btn">Leer completa</a>
-                    </div>
-                </div>
+            <div id="contenedor-noticias" class="grid-container">
+                <p>Cargando noticias...</p>
             </div>
         </section>
         <hr>
@@ -46,11 +40,31 @@
 
     <footer>
         <div class="container footer-text">
-            <p>© 2026 AnimeNewsAzure - Victor Julio Fallas</p>
+            <p>© 2026 AnimeNewsAzure - Victor Julio Fallas Arroyo</p>
         </div>
     </footer>
 
     <script>
+        // 1. CARGAR NOTICIAS
+        fetch('noticias.json')
+            .then(res => res.json())
+            .then(data => {
+                const contenedor = document.getElementById('contenedor-noticias');
+                contenedor.innerHTML = '';
+                data.forEach(noticia => {
+                    contenedor.innerHTML += `
+                        <div class="card">
+                            <img src="${noticia.imagen}" alt="Noticia">
+                            <div class="card-content">
+                                <h3>${noticia.titulo}</h3>
+                                <a href="${noticia.link}" target="_blank" class="btn">Leer completa</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            }).catch(() => document.getElementById('contenedor-noticias').innerHTML = '<p>No hay noticias por el momento.</p>');
+
+        // 2. CARGAR ESTRENOS
         fetch('estrenos.json')
             .then(res => res.json())
             .then(data => {
@@ -70,6 +84,7 @@
                 });
             });
 
+        // 3. CARGAR TRAILERS (¡Con el link de YouTube 100% arreglado!)
         fetch('trailers.json')
             .then(res => res.json())
             .then(data => {
@@ -82,7 +97,9 @@
                     } else if (trailer.video.includes('youtu.be/')) {
                         videoId = trailer.video.split('youtu.be/')[1].split('?')[0];
                     }
-                    let iframeSrc = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+                    
+                    // ESTE ES EL LINK OFICIAL CORRECTO
+                    let iframeSrc = videoId ? `https://www.youtube.com/embed/${videoId}` : trailer.video;
 
                     contenedor.innerHTML += `
                         <div class="card">
