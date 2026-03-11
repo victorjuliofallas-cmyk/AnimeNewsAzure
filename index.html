@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="referrer" content="no-referrer">
+    
     <title>AnimeNewsAzure - El Portal de Victor</title>
     <link rel="stylesheet" href="style.css">
+    
     <style>
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            padding: 20px 0;
-        }
-        .anime-card, .trailer-card, .noticia-card {
-            background: #1e1e1e;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.3s;
-            border: 1px solid #333;
-        }
-        .anime-card:hover, .noticia-card:hover { transform: scale(1.03); }
-        .anime-card img, .noticia-card img { width: 100%; height: 350px; object-fit: cover; }
+        /* Estilos base para asegurar que la cuadrícula se vea bien */
+        body { background-color: #121212; color: #ffffff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { width: 90%; max-width: 1200px; margin: auto; }
+        header { background-color: #1f1f1f; padding: 20px 0; border-bottom: 3px solid #e65100; text-align: center;}
+        header h1 { margin: 0; color: #fff; }
+        header h1 span { color: #e65100; }
+        .section-title { border-left: 4px solid #e65100; padding-left: 10px; margin-top: 40px; margin-bottom: 20px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding-bottom: 40px; }
+        .card { background: #1e1e1e; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+        .card img { width: 100%; height: 300px; object-fit: cover; }
         .card-content { padding: 15px; }
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+        .card-content h3 { margin-top: 0; color: #e65100; font-size: 1.2em; }
+        .btn { display: inline-block; background: #e65100; color: #fff; padding: 10px 15px; text-decoration: none; border-radius: 4px; margin-top: 10px;}
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        hr { border: 1px solid #333; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -38,24 +40,30 @@
     <main class="container">
         <section id="noticias-seccion">
             <h2 class="section-title">📰 Últimas Noticias</h2>
-            <div id="contenedor-noticias" class="grid-container">
-                <p>Cargando noticias...</p>
+            <div class="grid-container">
+                <div class="card">
+                    <div class="card-content">
+                        <h3>El manga JM, del creador de Hinamatsuri, tendrá adaptación al anime</h3>
+                        <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Las historias de intercambio de cuerpos siempre generan situaciones hilarantes, pero el caos se eleva al máximo...</p>
+                        <a href="#" class="btn">Leer completa</a>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <hr style="border: 1px solid #333; margin: 40px 0;">
+        <hr>
 
         <section id="estrenos-seccion">
             <h2 class="section-title">🔥 Estrenos de la Temporada</h2>
             <div id="contenedor-estrenos" class="grid-container">
-                <p>Invocando animes...</p>
+                <p>Cargando animes...</p>
             </div>
         </section>
 
-        <hr style="border: 1px solid #333; margin: 40px 0;">
+        <hr>
 
         <section id="trailers-seccion">
-            <h2 class="section-title">🎬 Últimos Trailers Oficiales</h2>
+            <h2 class="section-title">🎬 Nuevos Trailers</h2>
             <div id="contenedor-trailers" class="grid-container">
                 <p>Buscando trailers...</p>
             </div>
@@ -63,62 +71,34 @@
     </main>
 
     <footer>
-        <p>© 2026 AnimeNewsAzure - Proyecto de Victor Julio Fallas Arroyo</p>
+        <div class="container" style="text-align: center; padding: 20px 0; color: #666;">
+            <p>© 2026 AnimeNewsAzure - Victor Julio Fallas Arroyo</p>
+        </div>
     </footer>
 
     <script>
-        // TRUCO DEFINITIVO PARA LAS IMÁGENES (Usa un servidor espejo)
-        function obtenerImagenSegura(url) {
-            if (!url) return '';
-            return `https://images.weserv.nl/?url=${url}`;
-        }
-
-        // CARGAR NOTICIAS
-        fetch('noticias.json')
-            .then(res => res.json())
-            .then(data => {
-                const contenedor = document.getElementById('contenedor-noticias');
-                contenedor.innerHTML = '';
-                if (!data || data.length === 0) {
-                    contenedor.innerHTML = '<p>No hay noticias por ahora.</p>';
-                    return;
-                }
-                data.forEach(noticia => {
-                    const card = document.createElement('div');
-                    card.className = 'noticia-card';
-                    card.innerHTML = `
-                        <img src="${obtenerImagenSegura(noticia.imagen)}" alt="Noticia">
-                        <div class="card-content">
-                            <h3>${noticia.titulo}</h3>
-                            <a href="${noticia.link}" target="_blank" class="btn">Leer completa</a>
-                        </div>
-                    `;
-                    contenedor.appendChild(card);
-                });
-            }).catch(() => document.getElementById('contenedor-noticias').innerHTML = '<p>No hay archivo noticias.json cargado aún.</p>');
-
-        // CARGAR TODOS LOS ESTRENOS
+        // LÓGICA PARA CARGAR ESTRENOS
         fetch('estrenos.json')
             .then(res => res.json())
             .then(data => {
                 const contenedor = document.getElementById('contenedor-estrenos');
                 contenedor.innerHTML = ''; 
                 data.forEach(anime => {
-                    const card = document.createElement('div');
-                    card.className = 'anime-card';
-                    card.innerHTML = `
-                        <img src="${obtenerImagenSegura(anime.imagen)}" alt="${anime.titulo}">
-                        <div class="card-content">
-                            <h3>${anime.titulo}</h3>
-                            <p style="font-size: 0.9em; color: #ccc; margin-bottom: 15px;">${anime.sinopsis}</p>
-                            <a href="${anime.link}" target="_blank" class="btn">Detalles en MAL</a>
+                    contenedor.innerHTML += `
+                        <div class="card">
+                            <img src="${anime.imagen}" alt="${anime.titulo}">
+                            <div class="card-content">
+                                <h3>${anime.titulo}</h3>
+                                <p style="font-size: 0.9em; color: #ccc; margin-bottom: 15px;">${anime.sinopsis}</p>
+                                <a href="${anime.link}" target="_blank" class="btn">Ver más</a>
+                            </div>
                         </div>
                     `;
-                    contenedor.appendChild(card);
                 });
-            });
+            })
+            .catch(() => document.getElementById('contenedor-estrenos').innerHTML = '<p>Error cargando estrenos.</p>');
 
-        // CARGAR TODOS LOS TRAILERS
+        // LÓGICA PARA CARGAR TRAILERS (Con el link de YouTube reparado)
         fetch('trailers.json')
             .then(res => res.json())
             .then(data => {
@@ -126,33 +106,37 @@
                 contenedor.innerHTML = '';
                 
                 if (data.length === 0) {
-                    contenedor.innerHTML = '<p>No hay trailers en el archivo JSON actualmente.</p>';
+                    contenedor.innerHTML = '<p>No hay trailers disponibles.</p>';
                     return;
                 }
 
                 data.forEach(trailer => {
-                    const card = document.createElement('div');
-                    card.className = 'trailer-card';
-                    
-                    // Lógica correcta para YouTube
+                    // Limpieza del link de YouTube
                     let videoId = "";
-                    if (trailer.video.includes('v=')) {
-                        videoId = trailer.video.split('v=')[1].split('&')[0];
-                    } else if (trailer.video.includes('youtu.be/')) {
-                        videoId = trailer.video.split('youtu.be/')[1].split('?')[0];
-                    }
+                    try {
+                        if (trailer.video.includes('v=')) {
+                            videoId = trailer.video.split('v=')[1].split('&')[0];
+                        } else if (trailer.video.includes('youtu.be/')) {
+                            videoId = trailer.video.split('youtu.be/')[1].split('?')[0];
+                        }
+                    } catch(e) {}
 
-                    card.innerHTML = `
-                        <div class="video-container">
-                            <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
-                        </div>
-                        <div class="card-content">
-                            <h3>${trailer.titulo}</h3>
+                    // Link oficial para insertar videos
+                    let iframeSrc = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+
+                    contenedor.innerHTML += `
+                        <div class="card">
+                            <div class="video-container">
+                                <iframe src="${iframeSrc}" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                            <div class="card-content">
+                                <h3>${trailer.titulo}</h3>
+                            </div>
                         </div>
                     `;
-                    contenedor.appendChild(card);
                 });
-            });
+            })
+            .catch(() => document.getElementById('contenedor-trailers').innerHTML = '<p>Error cargando trailers.</p>');
     </script>
 </body>
 </html>
