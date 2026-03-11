@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>AnimeNewsAzure - El Portal de Victor</title>
+    <title>AnimeNewsAzure - Victor</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <div class="container">
             <h1>AnimeNews<span>Azure</span></h1>
-            <p>Tu portal de noticias de anime en tiempo real</p>
+            <p>Tu portal de noticias de anime</p>
         </div>
     </header>
 
@@ -20,97 +20,74 @@
             <h2 class="section-title">📰 Últimas Noticias</h2>
             <div class="grid-container">
                 <div class="card">
-                    <img src="https://cdn.myanimelist.net/images/anime/1015/138006l.jpg" alt="Noticia JM" referrerpolicy="no-referrer">
+                    <img src="https://cdn.myanimelist.net/images/anime/1015/138006l.jpg" alt="Noticia">
                     <div class="card-content">
-                        <h3>El manga JM, del creador de Hinamatsuri, tendrá adaptación al anime</h3>
-                        <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Las historias de intercambio de cuerpos siempre generan situaciones hilarantes, pero el caos se eleva al máximo con esta nueva serie...</p>
+                        <h3>El manga JM tendrá adaptación al anime</h3>
+                        <p style="color: #ccc; font-size: 0.9em;">Una nueva comedia de intercambio de cuerpos del creador de Hinamatsuri.</p>
                         <a href="https://myanimelist.net/news" target="_blank" class="btn">Leer completa</a>
                     </div>
                 </div>
             </div>
         </section>
-        
+
         <hr>
 
         <section id="estrenos-seccion">
-            <h2 class="section-title">🔥 Estrenos de la Temporada</h2>
+            <h2 class="section-title">🔥 Estrenos de Temporada</h2>
             <div id="contenedor-estrenos" class="grid-container">
-                <p>Cargando animes...</p>
+                <p>Cargando datos...</p>
             </div>
         </section>
-        
+
         <hr>
 
         <section id="trailers-seccion">
-            <h2 class="section-title">🎬 Nuevos Trailers</h2>
+            <h2 class="section-title">🎬 Trailers</h2>
             <div id="contenedor-trailers" class="grid-container">
-                <p>Buscando trailers...</p>
+                <p>Buscando videos...</p>
             </div>
         </section>
     </main>
 
-    <footer>
-        <div class="container footer-text" style="text-align: center; padding: 20px; color: #666;">
-            <p>© 2026 AnimeNewsAzure - Victor Julio Fallas Arroyo</p>
-        </div>
-    </footer>
-
     <script>
-        // Función definitiva para arreglar cualquier link de YouTube
-        function obtenerLinkYoutube(url) {
-            if (!url) return "";
-            if (url.includes("embed")) return url; 
-            let videoId = "";
-            if (url.includes("v=")) {
-                videoId = url.split("v=")[1].split("&")[0];
-            } else if (url.includes("youtu.be/")) {
-                videoId = url.split("youtu.be/")[1].split("?")[0];
+        // Función para cargar los JSON con manejo de errores
+        async function cargarDatos(archivo, contenedorId, esVideo = false) {
+            const contenedor = document.getElementById(contenedorId);
+            try {
+                const response = await fetch(archivo);
+                if (!response.ok) throw new Error("No encontrado");
+                const data = await response.json();
+                contenedor.innerHTML = '';
+
+                data.forEach(item => {
+                    if (esVideo) {
+                        let videoId = item.video.includes('v=') ? item.video.split('v=')[1].split('&')[0] : item.video.split('be/')[1];
+                        contenedor.innerHTML += `
+                            <div class="card">
+                                <div class="video-container">
+                                    <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+                                </div>
+                                <div class="card-content"><h3>${item.titulo}</h3></div>
+                            </div>`;
+                    } else {
+                        contenedor.innerHTML += `
+                            <div class="card">
+                                <img src="${item.imagen}" alt="${item.titulo}" referrerpolicy="no-referrer">
+                                <div class="card-content">
+                                    <h3>${item.titulo}</h3>
+                                    <p style="font-size: 0.8em; color: #ccc;">${item.sinopsis || ''}</p>
+                                    <a href="${item.link}" target="_blank" class="btn">Ver más</a>
+                                </div>
+                            </div>`;
+                    }
+                });
+            } catch (e) {
+                contenedor.innerHTML = `<p style="color:red;">Error: Asegúrate de que el archivo ${archivo} exista en GitHub.</p>`;
             }
-            return videoId ? "https://www.youtube.com/embed/" + videoId : "";
         }
 
-        // CARGAR ESTRENOS
-        fetch('estrenos.json')
-            .then(res => res.json())
-            .then(data => {
-                const contenedor = document.getElementById('contenedor-estrenos');
-                contenedor.innerHTML = ''; 
-                data.forEach(anime => {
-                    contenedor.innerHTML += `
-                        <div class="card">
-                            <img src="${anime.imagen}" alt="${anime.titulo}" referrerpolicy="no-referrer">
-                            <div class="card-content">
-                                <h3>${anime.titulo}</h3>
-                                <p style="font-size: 0.9em; color: #ccc; margin-bottom: 15px;">${anime.sinopsis}</p>
-                                <a href="${anime.link}" target="_blank" class="btn">Ver en MAL</a>
-                            </div>
-                        </div>
-                    `;
-                });
-            }).catch(() => document.getElementById('contenedor-estrenos').innerHTML = '<p>No hay animes cargados.</p>');
-
-        // CARGAR TRAILERS
-        fetch('trailers.json')
-            .then(res => res.json())
-            .then(data => {
-                const contenedor = document.getElementById('contenedor-trailers');
-                contenedor.innerHTML = '';
-                data.forEach(trailer => {
-                    let linkCorrecto = obtenerLinkYoutube(trailer.video);
-                    if (!linkCorrecto) return; // Si no hay video válido, lo salta para no mostrar errores
-                    
-                    contenedor.innerHTML += `
-                        <div class="card">
-                            <div class="video-container">
-                                <iframe src="${linkCorrecto}" frameborder="0" allowfullscreen></iframe>
-                            </div>
-                            <div class="card-content">
-                                <h3>${trailer.titulo}</h3>
-                            </div>
-                        </div>
-                    `;
-                });
-            }).catch(() => document.getElementById('contenedor-trailers').innerHTML = '<p>No hay trailers cargados.</p>');
+        cargarDatos('estrenos.json', 'contenedor-estrenos');
+        cargarDatos('trailers.json', 'contenedor-trailers', true);
     </script>
 </body>
 </html>
